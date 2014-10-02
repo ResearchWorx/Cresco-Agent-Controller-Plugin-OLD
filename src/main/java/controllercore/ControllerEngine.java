@@ -39,7 +39,7 @@ public class ControllerEngine {
 	
 	public static boolean ControlChannelEnabled = false; //control service on/off
 	//public static boolean watchDogActive = false; //agent watchdog on/off
-	
+	//
 	
 	public static ConcurrentHashMap<String,String> cmdMap;
 	
