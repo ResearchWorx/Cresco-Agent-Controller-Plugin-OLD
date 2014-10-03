@@ -135,7 +135,7 @@ public class AgentDiscovery implements Runnable {
     		    			
     		    		}
     		    	
-  			    
+  			    Thread.sleep(100); //keep cpu happy
     			}
     	  }
     	  catch(Exception ex)
