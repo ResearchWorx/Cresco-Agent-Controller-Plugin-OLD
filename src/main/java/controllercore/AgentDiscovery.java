@@ -50,6 +50,23 @@ public class AgentDiscovery implements Runnable {
     		    		      	//System.out.println(watchTs);
     		    		      			if(!ControllerEngine.agentStatus.containsKey(sourcekey))
     		    		      			{
+    		    		      				ControllerEngine.agentStatus.put(sourcekey, System.currentTimeMillis());
+    				      					System.out.println("DISCOVER: New Agent/Plugin: " + sourcekey);
+    				      					CmdEvent ce = refreshCmd(sourcekey);
+    				      					ControllerEngine.cmdMap.put(sourcekey, ce.getCmdResult()); 
+    				      					
+    				      					if(sourcekey.contains("_")) //refresh agent if plugin event
+    				      					{
+    				      						if(!ControllerEngine.agentStatus.containsKey(sourcekey))
+    				  		      			    {
+    				      							System.out.println("Plugin Registered Before Agent");
+    				  		      			    }
+    				      						String refresh_agent = sourcekey.substring(0,sourcekey.indexOf("_"));
+    				    		  				ce = refreshCmd(refresh_agent);
+    						      			    ControllerEngine.cmdMap.put(refresh_agent, ce.getCmdResult()); 			      						
+    				      						
+    				      					}
+    		    		      				
     		    		      				/*
     		    		      				ControllerEngine.agentStatus.put(sourcekey, watchTs);
     		    		      				System.out.println("New Agent/Plugin: " + sourcekey);
@@ -60,6 +77,8 @@ public class AgentDiscovery implements Runnable {
     		    		      			}
     		    		      			else
     		    		      			{
+    		    		      				//System.out.println(sourcekey + " ALREADY THERE WE SHOULD ADD ThIS AGENT/PLUGIN to the list");
+    		    		      				
     		    		      				/*
     		    		      				long lastCount = ControllerEngine.agentStatus.get(sourcekey);
     		    		      				if(lastCount > watchTs)
@@ -80,7 +99,7 @@ public class AgentDiscovery implements Runnable {
     		    		    		  if(!ControllerEngine.agentStatus.containsKey(sourcekey))
     				      			  {
     				      					ControllerEngine.agentStatus.put(sourcekey, System.currentTimeMillis());
-    				      					System.out.println("New Agent/Plugin: " + sourcekey);
+    				      					System.out.println("CONFIG : New Agent/Plugin: " + sourcekey);
     				      					CmdEvent ce = refreshCmd(sourcekey);
     				      					ControllerEngine.cmdMap.put(sourcekey, ce.getCmdResult()); 
     				      					
