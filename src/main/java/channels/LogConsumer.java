@@ -87,6 +87,7 @@ public class LogConsumer implements Runnable {
         			InputStream stream = new ByteArrayInputStream(message.getBytes());		        
     			    JAXBElement<LogEvent> rootUm = LogEventUnmarshaller.unmarshal(new StreamSource(stream), LogEvent.class);		        
     			    LogEvent ie  = rootUm.getValue();
+    			    //generate logs
     			    ControllerEngine.logQueueIncoming.offer(ie);   			    
         		}
         		
