@@ -98,6 +98,7 @@ public class LogConsumer implements Runnable {
         		System.out.println("ERROR : Log Consumer : " + ex.toString());
         	}
         	//don't close channel, let log out do this.
+        	//perhaps remove code
         	/*
 		    try
 		    {
