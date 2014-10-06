@@ -69,10 +69,10 @@ public class LogConsumer implements Runnable {
     		System.exit(1);
     	}
     
-    	ControllerEngine.logConsumerActive = true;
+    	//ControllerEngine.logConsumerActive = true;
     	ControllerEngine.logConsumerEnabled = true;
     	
-    	LogEvent le = new LogEvent("INFO","CORE","LogConsumer Started");
+    	LogEvent le = new LogEvent("INFO",ControllerEngine.pluginID,"LogConsumer Started");
     	ControllerEngine.logQueueOutgoing.offer(le);
     	
     	while (ControllerEngine.logConsumerEnabled) 
@@ -120,7 +120,7 @@ public class LogConsumer implements Runnable {
 			
         }
     	System.out.println("LogConsumer Disabled");   	
-    	le = new LogEvent("INFO","CORE","LogConsumer Disabled");
+    	le = new LogEvent("INFO",ControllerEngine.pluginID,"LogConsumer Disabled");
     	ControllerEngine.logQueueOutgoing.offer(le);
     	return;
     }

@@ -28,8 +28,11 @@ public class ControllerEngine {
 	public static ConcurrentLinkedQueue<LogEvent> logQueueOutgoing;
 	public static ConcurrentLinkedQueue<LogEvent> logQueueIncoming;
 	
-	private String pluginName;
-	private String pluginSlot;
+	public static String pluginName;
+	public static String pluginSlot;
+	public static String pluginID;
+	public static String agentName;
+	
 	
 	public static boolean logConsumerActive = false;
 	public static boolean logConsumerEnabled = false;
@@ -88,19 +91,19 @@ public class ControllerEngine {
 		   return pluginName + "." + version;
 	   }
 	//steps to init the plugin
-	public boolean initialize(ConcurrentLinkedQueue<LogEvent> logQueue, SubnodeConfiguration configObj, String pluginSlot)  
+	public boolean initialize(ConcurrentLinkedQueue<LogEvent> logQueue, SubnodeConfiguration configObj, String pluginSlot, String agentName)  
 	{
 		this.logQueueOutgoing = logQueue;
 		this.pluginSlot = pluginSlot;
+		this.agentName = agentName;
+		this.pluginID = agentName + "_" + pluginSlot;
 		
 		try{
 			this.config = new PluginConfig(configObj);
 			
 			String startmsg = "Initializing Plugin: " + getVersion();
 			System.err.println(startmsg);
-			logQueue.offer(new LogEvent("INFO",pluginSlot,startmsg));
-			
-			WatchDog wd = new WatchDog(logQueue,config,pluginSlot);
+			logQueue.offer(new LogEvent("INFO",pluginID,startmsg));
 			
 			//Create Incoming log Queue wait to start
 	    	logQueueIncoming = new ConcurrentLinkedQueue<LogEvent>();
@@ -111,7 +114,7 @@ public class ControllerEngine {
 	    	{
 	    		Thread.sleep(1000);
 	    		String msg = "Waiting for logConsumer Initialization...";
-	    		logQueue.offer(new LogEvent("INFO","CORE",msg));
+	    		logQueue.offer(new LogEvent("INFO",pluginID,msg));
 		    	System.out.println(msg);
 	    	}
 	    	
@@ -125,9 +128,13 @@ public class ControllerEngine {
 	    	{
 	    		Thread.sleep(1000);
 	    		String msg = "Waiting for Agent Discovery Initialization...";
-	    		logQueue.offer(new LogEvent("INFO","CORE",msg));
+	    		logQueue.offer(new LogEvent("INFO",pluginID,msg));
 		    	System.out.println(msg);
 	    	}
+	    	
+	    	//don't activate log until after agent is working
+	    	ControllerEngine.logConsumerActive = true;
+	    	ControllerEngine.AgentDiscoveryActive = true;
             
         	//Starting SSH Server
         	SshServer sshd = SshServer.setUpDefaultServer();
@@ -138,6 +145,8 @@ public class ControllerEngine {
     		sshd.setShellFactory(appShell);
     		sshd.start();
 			
+    		WatchDog wd = new WatchDog(logQueue,config);
+			
     		return true;
     		
 		
@@ -146,7 +155,7 @@ public class ControllerEngine {
 		{
 			String msg = "ERROR IN PLUGIN: " + ex.toString();
 			System.err.println(msg);
-			logQueue.offer(new LogEvent("ERROR",pluginSlot,msg));
+			logQueue.offer(new LogEvent("ERROR",pluginID,msg));
 			return false;
 		}
 		

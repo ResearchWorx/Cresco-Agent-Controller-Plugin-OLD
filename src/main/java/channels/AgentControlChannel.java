@@ -51,18 +51,17 @@ public class AgentControlChannel  {
 	    CmdEventMarshaller = jaxbContext.createMarshaller();
 	    
 	    //Create hash for all agent channels
-	    agentChannelMap = new ConcurrentHashMap<String,Channel>();
-	    
-	    
+	    agentChannelMap = new ConcurrentHashMap<String,Channel>();    
 	}
 	
 	public CmdEvent call(CmdEvent ce) throws Exception {  
 		
-		CmdEvent CmdResponse = null;
+		CmdEvent CmdResponse = null; //set response to null
 	    
 		String arg = ce.getCmdArg().substring(ce.getCmdArg().indexOf("_") + 1);
 		String agent = null;
-        if(ce.getCmdArg().contains("_")) //for agent vs plugin commands
+		
+		if(ce.getCmdArg().contains("_")) //for agent vs plugin commands
         {
         	agent = ce.getCmdArg().substring(0,ce.getCmdArg().indexOf("_"));
         }
@@ -74,8 +73,7 @@ public class AgentControlChannel  {
         //strip agent from cmdArg
         ce.setCmdArg(arg);
 		
-		String requestQueueName = ControllerEngine.config.getRegion() + "_control_" + agent; 
-        
+        String requestQueueName = ControllerEngine.config.getRegion() + "_control_" + agent; 
         String replyQueueName = channel.queueDeclare().getQueue();
         
         consumer = new QueueingConsumer(channel);
@@ -98,9 +96,7 @@ public class AgentControlChannel  {
         CmdEventMarshaller.marshal(rootM, CmdEventXMLString);
         
         channel.basicPublish("", requestQueueName, props, CmdEventXMLString.toString().getBytes());
-
-	    
-	    
+        
 	    while (true) {
 	        QueueingConsumer.Delivery delivery = consumer.nextDelivery();
 	        
@@ -112,7 +108,7 @@ public class AgentControlChannel  {
 			    JAXBElement<CmdEvent> rootUm = CmdEventUnmarshaller.unmarshal(new StreamSource(stream), CmdEvent.class);		        
 			    CmdResponse = rootUm.getValue();
 			    //response = rce.getCmdType() + "," + rce.getCmdArg() + "," +  rce.getCmdResult();
-	            break;
+			    break;
 	        }
 	    }
         

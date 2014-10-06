@@ -22,21 +22,32 @@ public class AgentDiscovery implements Runnable {
         
     	  try
     	  {
-    		  ControllerEngine.AgentDiscoveryActive = true;
+    		  //ControllerEngine.AgentDiscoveryActive = true;
   			  ControllerEngine.AgentDiscoveryEnabled = true;
   			  
-    		  while(true)
+    		  while(ControllerEngine.AgentDiscoveryEnabled)
     			{
-    			  
+    			  if(ControllerEngine.AgentDiscoveryActive)
+    			  {
     			  synchronized(logQueueIncoming) 
     			  {
     		    		while ((!logQueueIncoming.isEmpty())) 
     		    		{
-    		    			LogEvent le = logQueueIncoming.poll(); //get logevent
-    		    			  
-    		  			      if(le.getEventType().equals("WATCHDOG"))
-    		    		      {
-    		  			    	  String sourcekey; 
+    		    		  
+    		    		  LogEvent le = logQueueIncoming.poll(); //get logevent
+    		    		  //prevent a looping discovery
+    		    		  if(le.getEventSource().equals(ControllerEngine.pluginID))
+    		    		  {
+    		    			  //System.out.println("MESSAGE FROM THIS AGENT:" +  ControllerEngine.agentName + " slot:" + ControllerEngine.pluginSlot + " msg:" + le.getEventMsg() + " type:" + le.getEventType());
+    		    		  }
+    		    		  else //only discover if message was from another module.
+    		    		  {
+    		    			  //don't do watchdog based discovery for self
+    		    			  //System.out.println("MESSAGE NOT THIS AGENT PLUGIN:" +  ControllerEngine.agentName + " vs:" + le.getEventAgent() + " slot:" + ControllerEngine.pluginSlot + " vs:" + le.getEventSource() + " msg:" + le.getEventMsg() + " type:" + le.getEventType());
+    	    		    		
+    		    			 if(le.getEventType().equals("WATCHDOG"))
+    		    		     {
+    		    				  String sourcekey; 
     		  			    	  if(le.getEventAgent().equals(le.getEventSource()))
     		  			    	  {
     		  			    		  sourcekey = le.getEventAgent();
@@ -51,21 +62,25 @@ public class AgentDiscovery implements Runnable {
     		    		      			if(!ControllerEngine.agentStatus.containsKey(sourcekey))
     		    		      			{
     		    		      				ControllerEngine.agentStatus.put(sourcekey, System.currentTimeMillis());
-    				      					System.out.println("DISCOVER: New Agent/Plugin: " + sourcekey);
+    				      					System.out.println("WATCHDOG DISCOVER: New Agent/Plugin: " + sourcekey);
     				      					CmdEvent ce = refreshCmd(sourcekey);
+    				      					System.out.println(sourcekey);
+    				      					
     				      					ControllerEngine.cmdMap.put(sourcekey, ce.getCmdResult()); 
     				      					
     				      					if(sourcekey.contains("_")) //refresh agent if plugin event
     				      					{
+    				      						
     				      						if(!ControllerEngine.agentStatus.containsKey(sourcekey))
     				  		      			    {
     				      							System.out.println("Plugin Registered Before Agent");
     				  		      			    }
-    				      						String refresh_agent = sourcekey.substring(0,sourcekey.indexOf("_"));
-    				    		  				ce = refreshCmd(refresh_agent);
-    						      			    ControllerEngine.cmdMap.put(refresh_agent, ce.getCmdResult()); 			      						
     				      						
-    				      					}
+    				      						String refresh_agent = sourcekey.substring(0,sourcekey.indexOf("_"));
+    				      						
+    				      						ce = refreshCmd(refresh_agent);
+    						      			    ControllerEngine.cmdMap.put(refresh_agent, ce.getCmdResult()); 			      						
+    						      			}
     		    		      				
     		    		      				/*
     		    		      				ControllerEngine.agentStatus.put(sourcekey, watchTs);
@@ -93,7 +108,7 @@ public class AgentDiscovery implements Runnable {
     		    		      }
     		    		      else if(le.getEventType().equals("CONFIG"))
     		    		      {
-    		    		    	  String sourcekey = le.getEventSource();
+    		    		    	    String sourcekey = le.getEventSource();
     		    		    	  if(le.getEventMsg().equals("enabled"))
     		    		    	  {
     		    		    		  if(!ControllerEngine.agentStatus.containsKey(sourcekey))
@@ -148,14 +163,20 @@ public class AgentDiscovery implements Runnable {
     		    		    		  }
     		    		    	  }
     		    		      }
+    		    		}
+    		    			 
+    		    			 
     		    			}
-    		    			
+    			  
+    			  
     		    			
     		    			
     		    		}
     		    	
-  			    Thread.sleep(100); //keep cpu happy
-    			}
+  			    }
+    			  Thread.sleep(100); //keep cpu happy
+      			  
+    	  	}
     	  }
     	  catch(Exception ex)
     	  {
@@ -167,7 +188,7 @@ public class AgentDiscovery implements Runnable {
     	  
    	   try
    	   {
-   	    CmdEvent ce = cs.call(new CmdEvent("discover",sourcekey));
+   		CmdEvent ce = cs.call(new CmdEvent("discover",sourcekey));
    		return ce;
    	   }
    	   catch(Exception ex)

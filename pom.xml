@@ -5,7 +5,7 @@
   <version>0.5.0-SNAPSHOT</version>
   <name>Cresco Agent Controller Plugin</name>
   <description>Controller Plugin for the Cresco Agent</description>
-   <url>https://github.com/researchworx/Cresco-Agent-Dummy-Plugin</url>
+   <url>https://github.com/researchworx/Cresco-Agent-Controller-Plugin</url>
   <scm>
     <connection>scm:git:git://github.com/researchworx/Cresco-Agent-Controller-Plugin.git</connection>
   </scm>

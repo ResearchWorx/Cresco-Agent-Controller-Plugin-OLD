@@ -43,9 +43,9 @@ public class PluginImplementation implements PluginInterface {
 	   public LogEvent outgoingCommand(LogEvent log);
 	   */
 	
-	public boolean initialize(ConcurrentLinkedQueue<LogEvent> logQueue,SubnodeConfiguration configObj,String pluginSlot) 
+	public boolean initialize(ConcurrentLinkedQueue<LogEvent> logQueue,SubnodeConfiguration configObj,String pluginSlot, String agentName) 
 	{
-	   return ((ControllerEngine) pe).initialize(logQueue, configObj,pluginSlot);
+	   return ((ControllerEngine) pe).initialize(logQueue, configObj,pluginSlot,agentName);
     }
 	public void shutdown()
 	{
