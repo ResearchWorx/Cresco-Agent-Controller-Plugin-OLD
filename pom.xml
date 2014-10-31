@@ -9,13 +9,35 @@
   <scm>
     <connection>scm:git:git://github.com/researchworx/Cresco-Agent-Controller-Plugin.git</connection>
   </scm>
-  
-  <dependencies>
-  	<dependency>
-	<groupId>commons-configuration</groupId>
-	<artifactId>commons-configuration</artifactId>
-	<version>1.10</version>
+
+   <dependencies>
+
+    <dependency>
+   <groupId>org.neo4j</groupId>
+   <artifactId>neo4j</artifactId>
+   <version>2.1.5</version>
+  </dependency>
+   
+   <!-- Start HTTPSERV -->
+   
+ <dependency>
+    <groupId>org.glassfish.jersey.containers</groupId>
+    <artifactId>jersey-container-grizzly2-http</artifactId>
+    <version>2.13</version>
 </dependency>
+
+	    <dependency>
+        <groupId>com.google.code.gson</groupId>
+        <artifactId>gson</artifactId>
+        <version>2.3</version>
+    </dependency>
+
+<dependency>
+	<groupId>commons-io</groupId>
+	<artifactId>commons-io</artifactId>
+	<version>2.4</version>
+</dependency>
+   <!-- End HTTPSERV -->  
 
 <dependency>
 	<groupId>jline</groupId>
@@ -40,14 +62,28 @@
   		<version>3.3.5</version>
   	</dependency>
 
+	<dependency>
+	<groupId>commons-configuration</groupId>
+	<artifactId>commons-configuration</artifactId>
+	<version>1.10</version>
+</dependency>
 
+ 
   </dependencies>  
     <build>
+    <resources>
+      <resource>
+        <directory>webroot</directory>
+        <includes>
+          <include>**/**</include>
+        </includes>
+      </resource>
+    </resources>
   <plugins>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>buildnumber-maven-plugin</artifactId>
-        <version>1.2</version>
+        <version>1.3</version>
         <executions>
           <execution>
             <phase>validate</phase>
@@ -62,34 +98,49 @@
           <shortRevisionLength>5</shortRevisionLength>
         </configuration>
       </plugin>
-      <plugin>
-  <artifactId>maven-assembly-plugin</artifactId>
-  <configuration>
-    <archive>
+ 
+
+ <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                             <archive>
       <manifest>
         <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-        <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-      	
+        <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>	
       </manifest>
       <manifestEntries>
               <Implementation-Version>${project.version}.${buildNumber}.${maven.build.timestamp}</Implementation-Version>
       </manifestEntries>
     </archive>
-    <descriptorRefs>
-      <descriptorRef>jar-with-dependencies</descriptorRef>
-    </descriptorRefs>
-  </configuration>
-  <executions>
-    <execution>
-      <id>make-assembly</id>
-      <phase>package</phase>
-      <goals>
-        <goal>single</goal>
-      </goals>
-    </execution>
-  </executions>
-</plugin>       
-          <plugin>
+   
+                            
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                            <transformers>
+                                
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <manifestEntries>
+                                        <Main-Class>com.codybum.wifiserv.coreServer</Main-Class>
+                                        <Build-Number>1</Build-Number>
+                                    </manifestEntries>
+                                </transformer>
+                                 </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+      
+             <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.1</version>

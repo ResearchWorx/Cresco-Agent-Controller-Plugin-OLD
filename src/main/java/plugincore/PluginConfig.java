@@ -1,4 +1,4 @@
-package controllercore;
+package plugincore;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.SubnodeConfiguration;
@@ -11,6 +11,17 @@ public class PluginConfig {
 	public PluginConfig(SubnodeConfiguration configObj) throws ConfigurationException
 	{
 	    this.configObj = configObj;
+	}
+	public Boolean webDb()
+	{
+		if(configObj.getString("webdb").equals("1"))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 	public String getPluginName()
 	{

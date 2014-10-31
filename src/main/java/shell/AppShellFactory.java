@@ -26,13 +26,13 @@ import org.apache.sshd.server.ExitCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import shared.CmdEvent;
-import channels.AgentControlChannel;
-import controllercore.ControllerEngine;
+import plugincore.PluginEngine;
+import shared.MsgEvent;
+import shared.MsgEventType;
 
 public class AppShellFactory implements Factory {
 
-	public static AgentControlChannel cs;
+	//public static AgentControlChannel cs;
 	public static String word;
 	public static List<Completer> completors;
 	
@@ -40,7 +40,7 @@ public class AppShellFactory implements Factory {
     {
     	//Get command channel
     	try {
-			cs = new AgentControlChannel();
+			//cs = new AgentControlChannel();
 			completors = new LinkedList<Completer>();
 			
 		} catch (Exception e) {
@@ -272,9 +272,9 @@ public class AppShellFactory implements Factory {
         
     	String cmd = new String();
     	
-    	if(ControllerEngine.cmdMap.size() > 0)
+    	if(PluginEngine.cmdMap.size() > 0)
     	{
-    	Iterator it = ControllerEngine.cmdMap.entrySet().iterator();
+    	Iterator it = PluginEngine.cmdMap.entrySet().iterator();
         
         while (it.hasNext()) {
             Map.Entry pairs = (Map.Entry)it.next();
@@ -342,9 +342,13 @@ public class AppShellFactory implements Factory {
         
         if((cmd.length() > 0) && (cmdList.size() == 0))
         {
-        	CmdEvent ce = cs.call(new CmdEvent("execute",cmd));
-         	return ce.getCmdResult();
-        	
+        	//CmdEvent ce = cs.call(new CmdEvent("execute",cmd));
+         	//return ce.getCmdResult();
+        	MsgEvent me = new MsgEvent(MsgEventType.EXEC,"test","controller2","plugin/0","shell command");
+        	me.setParam("cmd", cmd);
+        	//me = PluginEngine.agentChannel.call(me);
+        	return me.getMsgBody();
+        	//MsgEvent me = PluginEngine.agentChannel.call()
         }
         
         sb = new StringBuilder();
