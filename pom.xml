@@ -12,32 +12,6 @@
 
    <dependencies>
 
-    <dependency>
-   <groupId>org.neo4j</groupId>
-   <artifactId>neo4j</artifactId>
-   <version>2.1.5</version>
-  </dependency>
-   
-   <!-- Start HTTPSERV -->
-   
- <dependency>
-    <groupId>org.glassfish.jersey.containers</groupId>
-    <artifactId>jersey-container-grizzly2-http</artifactId>
-    <version>2.13</version>
-</dependency>
-
-	    <dependency>
-        <groupId>com.google.code.gson</groupId>
-        <artifactId>gson</artifactId>
-        <version>2.3</version>
-    </dependency>
-
-<dependency>
-	<groupId>commons-io</groupId>
-	<artifactId>commons-io</artifactId>
-	<version>2.4</version>
-</dependency>
-   <!-- End HTTPSERV -->  
 
 <dependency>
 	<groupId>jline</groupId>
@@ -56,12 +30,7 @@
   <version>0.12.0</version>
 </dependency>
 
-  	<dependency>
-  		<groupId>com.rabbitmq</groupId>
-  		<artifactId>amqp-client</artifactId>
-  		<version>3.3.5</version>
-  	</dependency>
-
+ 
 	<dependency>
 	<groupId>commons-configuration</groupId>
 	<artifactId>commons-configuration</artifactId>
