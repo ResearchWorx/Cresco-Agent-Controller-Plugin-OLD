@@ -10,18 +10,7 @@ public class PluginConfig {
 	
 	public PluginConfig(SubnodeConfiguration configObj) throws ConfigurationException
 	{
-	    this.configObj = configObj;
-	}
-	public Boolean webDb()
-	{
-		if(configObj.getString("webdb").equals("1"))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		this.configObj = configObj;
 	}
 	public String getPluginName()
 	{
@@ -35,21 +24,26 @@ public class PluginConfig {
 	{
 		return configObj.getInt("watchdogtimer");
 	}
-	
-	public String getAMPQControlHost()
+	public String getControllerIP()
 	{
-		return configObj.getString("ampq_control_host");
+		try{
+		return configObj.getString("controllerip");
+		}
+		catch(Exception ex)
+		{
+			System.out.println("Controller : PluginConfig : ERROR " + ex.toString());
+			return null;
+		}
 	}
-	
-	public String getAMPQControlUser()
+	public String getControllerPort()
 	{
-		return configObj.getString("ampq_control_username");	    
+		try{
+		return configObj.getString("controllerport");
+		}
+		catch(Exception ex)
+		{
+			System.out.println("Controller : PluginConfig : ERROR " + ex.toString());
+			return null;
+		}
 	}
-	
-	public String getAMPQControlPassword()
-	{
-		return configObj.getString("ampq_control_password");	    
-	}
-	
-	
 }

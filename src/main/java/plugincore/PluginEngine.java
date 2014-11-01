@@ -13,6 +13,7 @@ import org.apache.commons.configuration.SubnodeConfiguration;
 import org.apache.sshd.SshServer;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 
+import channels.ControllerChannel;
 import shared.Clogger;
 import shared.MsgEvent;
 import shared.PluginImplementation;
@@ -24,6 +25,9 @@ import shell.InAppPasswordAuthenticator;
 
 public class PluginEngine {
 
+	public static boolean hasController = false;
+	public static ControllerChannel controllerChannel;
+	
 	public static PluginConfig config;
 	public static ConcurrentLinkedQueue<MsgEvent> msgInQueue;
 	
@@ -120,10 +124,26 @@ public class PluginEngine {
 			
 			this.config = new PluginConfig(configObj);
 			
+			//if controller exist load
+			if(PluginEngine.config.getControllerIP() != null)
+			{
+				System.out.println("Controller : Master Controller Config Found");
+				controllerChannel = new ControllerChannel();
+				hasController = controllerChannel.getController();
+				if(hasController)
+				{
+					System.out.println("Controller : Master Controller Found");
+				}
+				else
+				{
+					System.out.println("Controller : Unable to Contact Master Controller");
+				}
+			}		
+			
 			String startmsg = "Controller : Initializing Plugin: Region=" + region + " Agent=" + agent + " plugin=" + plugin + " version" + getVersion();
 			clog.log(startmsg);
 			
-			System.out.println("Controller : Starting GraphDB Service");
+			System.out.println("Controller : ControllerDB Service");
 			gdb = new ControllerDB(); //start graphdb service
 			
 			

@@ -160,6 +160,17 @@ public class AgentDiscovery {
 		 {
  			 //if we see a agent enable command respond to it
  			 System.out.println("AGENTREMOVE: Region:" + le.getParam("src_region") + " Agent:" + le.getParam("src_agent"));
+ 			 
+ 			if(le.getParam("src_plugin") == null) //if plugin discover plugin info as well
+	  		 {
+	  		    	PluginEngine.gdb.removeNode(le.getParam("src_region"), le.getParam("src_agent"), null);
+	  		 }
+	  	     else
+	         {
+	  		    	PluginEngine.gdb.removeNode(le.getParam("src_region"), le.getParam("src_agent"),le.getParam("src_plugin"));
+	   	     }
+ 			 
+ 			 
  			 le.setMsgPlugin(null);
  			 le.setMsgRegion(le.getParam("src_region"));
  			 le.setMsgAgent(le.getParam("src_agent"));
@@ -169,6 +180,9 @@ public class AgentDiscovery {
  			 le.setParam("dst_agent", le.getParam("src_agent"));
 			 le.setSrc(PluginEngine.region, PluginEngine.agent, PluginEngine.plugin);
  		     //le.setDst(me.getParam("src_region"),me.getParam("src_agent"),me.getParam("src_plugin"));
+			 
+			 
+			 
  			 PluginEngine.msgInQueue.offer(le);
  		
 		 }

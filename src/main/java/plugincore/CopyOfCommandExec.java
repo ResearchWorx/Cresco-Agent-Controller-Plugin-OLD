@@ -1,14 +1,13 @@
 package plugincore;
 
-import channels.ControllerChannel;
 import shared.MsgEvent;
 import shared.MsgEventType;
 
 
 
-public class CommandExec {
+public class CopyOfCommandExec {
 
-	public CommandExec()
+	public CopyOfCommandExec()
 	{
 		
 	}
@@ -76,8 +75,10 @@ public class CommandExec {
 				}
 			}
 			//message for controller
-			else if((ce.getParam("dst_region") != null) && (ce.getParam("dst_agent") == null) && (ce.getParam("dst_plugin") == null))
-			{	
+			else
+			{
+				if((ce.getParam("dst_region") != null) && (ce.getParam("dst_agent") == null) && (ce.getParam("dst_plugin") == null))
+				{	
 					if((ce.getParam("dst_region").equals(PluginEngine.region)) && (ce.getParam("dst_agent") == null) && (ce.getParam("dst_plugin") == null))
 					{
 						final MsgEvent me = ce;
@@ -93,59 +94,28 @@ public class CommandExec {
 								thread.start();
 							
 						}
+						//put general logger here
 						
-						//log to master controller
-						//remove dest info
-						ce.removeParam("dst_region");
-						ce.removeParam("dst_agent");
-						ce.removeParam("dst_plugin");
-						PluginEngine.commandExec.cmdExec(ce);
-						
-						return null;
+						  return null;
 					}
 					else
 					{
 						System.out.println("**THIS SHOULD NEVER HAPPEN! CONTROLLER WITH ANOTHER REGIONS'S LOGS");
 						return null;
 					}
-			}
-			else if((ce.getParam("dst_region") == null) && (ce.getParam("dst_agent") == null) && (ce.getParam("dst_plugin") == null))
-			{
-				if(PluginEngine.hasController)
+				}
+				else
 				{
-					//ce.setParam("controllerlog", "log");
-					if(ce.getParam("controllercmd") != null)
-					{
-						final MsgEvent me = ce;
-						
-						Thread thread = new Thread(){
-							public void run(){
-								/*
-								System.out.println("Routing to Master Controller");
-								System.out.println("MsgType=" + me.getMsgType().toString());
-								System.out.println("Region=" + me.getMsgRegion() + " Agent=" + me.getMsgAgent() + " plugin=" + me.getMsgPlugin());
-								System.out.println("params=" + me.getParamsString());
-								*/
-								PluginEngine.controllerChannel.sendController(me);
-							}
-						};
-						thread.start();
-					}
+					System.out.println("Routing to Master Controller");
+					System.out.println("MsgType=" + ce.getMsgType().toString());
+					System.out.println("Region=" + ce.getMsgRegion() + " Agent=" + ce.getMsgAgent() + " plugin=" + ce.getMsgPlugin());
+					System.out.println("params=" + ce.getParamsString());
+					
+					
+					
 					return null;
 				}
-				return null;
 			}
-			else
-			{
-				System.out.println("Controller : CommandExec : Unknown Message");
-				System.out.println("MsgType=" + ce.getMsgType().toString());
-				System.out.println("Region=" + ce.getMsgRegion() + " Agent=" + ce.getMsgAgent() + " plugin=" + ce.getMsgPlugin());
-				System.out.println("params=" + ce.getParamsString());
-				return null;
-			}
-			
-			
-	
 		}
 		catch(Exception ex)
 		{
