@@ -3,61 +3,100 @@ package plugincore;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-
-import shared.MsgEvent;
 
 public class AgentNode {
 
 	//private MsgEvent de = null;
-	private Map<String,MsgEvent> deMap = null;
+	private Map<String,Map<String,String>> pluginMap = null;
 	private String agentName;
+	private Map<String,String> paramMap;
 	
-	public AgentNode(String agentName, MsgEvent de)
+	
+	public AgentNode(String agentName, Map<String,String> paramMap)
 	{
 		this.agentName = agentName;
-		deMap = new ConcurrentHashMap<String,MsgEvent>();
-		deMap.put("this", de);
-		
+		pluginMap = new ConcurrentHashMap<String,Map<String,String>>();
+		this.paramMap = paramMap;
 	}
-	public MsgEvent getAgentDe()
+	public AgentNode(String agentName)
 	{
-		return deMap.get("this");
+		this.agentName = agentName;
+		pluginMap = new ConcurrentHashMap<String,Map<String,String>>();
+		this.paramMap = new ConcurrentHashMap<String,String>();
 	}
-	public void setAgentDe(MsgEvent de)
+	public String getAgentName()
 	{
-		deMap.put("this", de);
+		return agentName;
 	}
-	public MsgEvent getPluginDe(String pluginSlot)
+	public void setAgentName(String agentName)
 	{
-		if(deMap.containsKey(pluginSlot))
+		this.agentName = agentName;
+	}
+	
+	public Map<String,String> getAgentParams()
+	{
+		return paramMap;
+	}
+	public void setAgentParams(Map<String,String> paramMap)
+	{
+		this.paramMap = paramMap;
+	}
+	public void setAgentParam(String key, String value)
+	{
+		paramMap.put(key, value);
+	}
+	public boolean isPlugin(String pluginSlot)
+	{
+		if(pluginMap.containsKey(pluginSlot))
 		{
-		return deMap.get(pluginSlot);
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	public Map<String,String> getPluginParams(String pluginSlot)
+	{
+		if(pluginMap.containsKey(pluginSlot))
+		{
+		return pluginMap.get(pluginSlot);
 		}
 		else
 		{
 		return null;
 		}
 	}
-	public void setPluginDe(String pluginSlot, MsgEvent de)
+	public void addPlugin(String pluginSlot)
 	{
-		deMap.put(pluginSlot, de);
+		if(!pluginMap.containsKey(pluginSlot))
+		{
+			Map<String,String> pluginParams = new ConcurrentHashMap<String,String>();
+			pluginMap.put(pluginSlot, pluginParams);
+		}
+	}
+	public void setPluginParams(String pluginSlot, Map<String,String> paramMap)
+	{
+		pluginMap.put(pluginSlot, paramMap);
+	}
+	public void setPluginParam(String pluginSlot, String key, String value)
+	{
+		pluginMap.get(pluginSlot).put(key, value);
 	}
 	public void removePlugin(String pluginSlot)
 	{
-		deMap.remove(pluginSlot);
+		pluginMap.remove(pluginSlot);
 	}
 	public ArrayList<String> getPlugins() 
 	{
 		ArrayList<String> ar = new ArrayList<String>();
-		Iterator it = deMap.entrySet().iterator();
+		Iterator<Entry<String, Map<String, String>>> it = pluginMap.entrySet().iterator();
   	    while (it.hasNext()) 
   	    {
-  	        Map.Entry pairs = (Map.Entry)it.next();
-  	        if(!pairs.getKey().toString().equals("this"))//don't add self
-  	        {
-  	    	ar.add(pairs.getKey().toString());
-  	        }
+  	        Entry<String, Map<String, String>> pairs = it.next();
+  	        ar.add(pairs.getKey().toString());      
   	    }
   	    return ar;
 	}

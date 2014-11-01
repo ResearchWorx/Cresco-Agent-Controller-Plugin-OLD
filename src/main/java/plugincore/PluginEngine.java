@@ -1,10 +1,7 @@
 package plugincore;
 
-import graphdb.graphDBEngine;
-
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
@@ -18,11 +15,9 @@ import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 
 import shared.Clogger;
 import shared.MsgEvent;
-import shared.MsgEventType;
 import shared.PluginImplementation;
 import shell.AppShellFactory;
-//import shell.AppShellFactory;
-//import shell.InAppPasswordAuthenticator;
+import shell.AppShellFactory;
 import shell.InAppPasswordAuthenticator;
 
 
@@ -34,7 +29,7 @@ public class PluginEngine {
 	
 	public static ConcurrentMap<String,MsgEvent> rpcMap;
 	
-	public static graphDBEngine gdb;
+	public static ControllerDB gdb;
 	public static Clogger clog;
 	
 	public static String pluginName;
@@ -129,7 +124,7 @@ public class PluginEngine {
 			clog.log(startmsg);
 			
 			System.out.println("Controller : Starting GraphDB Service");
-			gdb = new graphDBEngine(); //start graphdb service
+			gdb = new ControllerDB(); //start graphdb service
 			
 			
 	    	//Create Discovery Service wait to start
