@@ -23,6 +23,16 @@ public class AgentDiscovery {
 	    cleanUpTimer.scheduleAtFixedRate(new DiscoveryCleanUpTask(), 500, PluginEngine.config.getWatchDogTimer() * 3);      
 	}
 	
+	public void perfupdate(MsgEvent pe)
+	{
+		//send to controller if global WatchPerf
+	   //System.out.println("WatchPerf: " + pe.getParamsString());
+	   if(!PluginEngine.controllerChannel.updatePerf(pe))
+	   {
+			System.out.println("Controller : AgentDiscovery : Failed to updatePerf for WatchPerf on Controller");
+	   }
+	}
+	
 	public void discover(MsgEvent le) 
     {
 	 try
@@ -174,7 +184,7 @@ public class AgentDiscovery {
     		    	}
    		    	}
 			}
-   		    				
+   		    
    		  }
    	 	 
 		   if(PluginEngine.discoveryMap.containsKey(discoverString))

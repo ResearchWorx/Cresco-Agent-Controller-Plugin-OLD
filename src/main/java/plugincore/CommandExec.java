@@ -92,7 +92,17 @@ public class CommandExec {
 								Thread thread = new Thread(){
 									public void run(){
 										//System.out.println("Discovery Thread Started Region=" + me.getParam("src_region") + " agent=" + me.getParam("src_agent") + " plugin=" + me.getParam("src_plugin"));
-										PluginEngine.agentDiscover.discover(me); //start discovery process
+										//
+										if((me.getMsgType() == MsgEventType.WATCHDOG) && (me.getParam("isGlobal") != null))
+										{
+											//this is a global message for the global controller
+											PluginEngine.agentDiscover.perfupdate(me);
+										}
+										else
+										{
+											//this is a normal message for the regional controller
+											PluginEngine.agentDiscover.discover(me); //start discovery process
+										}
 									}
 								};
 								thread.start();

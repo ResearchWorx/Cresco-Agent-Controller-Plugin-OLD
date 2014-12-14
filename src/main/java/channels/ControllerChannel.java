@@ -427,6 +427,76 @@ public class ControllerChannel {
 		}
 	}
  
+    public boolean updatePerf(MsgEvent le)
+    {
+		try
+		{
+			Map<String,String> tmpMap = le.getParams();
+			Map<String,String> leMap = null;
+			String type = null;
+			synchronized (tmpMap)
+			{
+				leMap = new ConcurrentHashMap<String,String>(tmpMap);
+				type = le.getMsgType().toString();
+			}
+			String url = controllerUrl + urlFromMsg(type,leMap);
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+ 
+			con.setConnectTimeout(5000);
+			
+			// optional default is GET
+			con.setRequestMethod("GET");
+ 
+			//add request header
+			con.setRequestProperty("User-Agent", USER_AGENT);
+ 
+			int responseCode = con.getResponseCode();
+			
+			if(responseCode == 200)
+			{
+				BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));				        
+				String inputLine;
+				StringBuffer response = new StringBuffer();
+		 
+				while ((inputLine = in.readLine()) != null) 
+				{
+						response.append(inputLine);
+				}
+				in.close();
+			
+				MsgEvent ce = null;
+				try
+				{
+					//System.out.println(response);
+					ce = meFromJson(response.toString());
+				}
+				catch(Exception ex)
+				{
+					System.out.println("Controller : ControllerChannel : Error meFromJson");
+				}					
+				if(ce != null)
+				{
+					if(ce.getMsgBody() != null)
+					{
+						if(ce.getMsgBody().equals("updatedperf"))
+						{
+							return true;
+						}
+					}
+				}
+			}
+			return false;
+			
+		}
+		catch(Exception ex)
+		{
+			System.out.println("Controller : ControllerChannel : sendControllerLog : " + ex.toString());
+			return false;
+		}
+	}
+ 
+    
     
     public void sendController(MsgEvent le)
     {
