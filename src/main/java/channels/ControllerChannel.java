@@ -8,6 +8,8 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.gson.Gson;
@@ -15,10 +17,14 @@ import com.google.gson.GsonBuilder;
 
 import plugincore.PluginEngine;
 import shared.MsgEvent;
+import shared.MsgEventType;
 
 public class ControllerChannel {
 
 	private final String USER_AGENT = "Cresco-Agent-Controller-Plugin/0.5.0";
+	private Timer timer;
+	private long startTS;
+	    
 	
 	private String controllerUrl;
 	
@@ -34,8 +40,101 @@ public class ControllerChannel {
 			{
 				controllerUrl = "http://" + PluginEngine.config.getControllerIP() + ":32000/API";
 			}
+			//Create pooling agent
+			startTS = System.currentTimeMillis();
+			timer = new Timer();
+		    timer.scheduleAtFixedRate(new CmdPoolTask(), 500, PluginEngine.config.getWatchDogTimer());
 		}
+		
 	}
+	
+	class CmdPoolTask extends TimerTask 
+	{
+		private boolean pool()
+		{
+			try
+    		{
+    			String url = controllerUrl + "?type=exec&paramkey=cmd&paramvalue=getmsg&paramkey=getregion&paramvalue=" + PluginEngine.region + "&paramkey=src_region&paramvalue=" + PluginEngine.region + "&paramkey=src_agent&paramvalue=" + PluginEngine.agent + "&paramkey=src_plugin&paramvalue=" + PluginEngine.plugin;
+    			URL obj = new URL(url);
+    			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+     
+    			con.setConnectTimeout(5000);
+    			
+    			// optional default is GET
+    			con.setRequestMethod("GET");
+     
+    			//add request header
+    			con.setRequestProperty("User-Agent", USER_AGENT);
+     
+    			int responseCode = con.getResponseCode();
+    			
+    			if(responseCode == 200)
+    			{
+    				BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));				        
+    				String inputLine;
+    				StringBuffer response = new StringBuffer();
+    		 
+    				while ((inputLine = in.readLine()) != null) 
+    				{
+    						response.append(inputLine);
+    				}
+    				in.close();
+    			
+    				MsgEvent ce = null;
+    				try
+    				{
+    					ce = meFromJson(response.toString());
+    				}
+    				catch(Exception ex)
+    				{
+    					//its ok to fail
+    					//System.out.println("Controller : ControllerChannel : Error meFromJson");
+    				}					
+    				if(ce != null)
+    				{
+    					if(ce.getMsgBody() != null)
+    					{
+    						System.out.println("Incoming Regional Message: " + ce.getParamsString());
+    						PluginEngine.msgInQueue.offer(ce);
+    						Thread.sleep(500); //take it easy on server
+    						return true; //try again for another message
+    					}
+    				}
+    			}
+    			return false;
+    			
+    		}
+    		catch(Exception ex)
+    		{
+    			System.out.println("Controller : ControllerChannel : CmdPoolTasks : " + ex.toString());
+    			return false; //wait for timeout for messages
+    		}
+		}
+	    public void run() 
+	    {
+	    	if(PluginEngine.hasController)
+	    	{
+	    		while(pool())
+	    		{
+	    			//System.out.println("pool");
+	    		}
+	    	}
+	    	/*
+	    	if(AgentEngine.watchDogActive)
+	    	{
+	    		long runTime = System.currentTimeMillis() - startTS;
+	    		wdMap.put("runtime", String.valueOf(runTime));
+	    		wdMap.put("timestamp", String.valueOf(System.currentTimeMillis()));
+	    	 
+	    		MsgEvent le = new MsgEvent(MsgEventType.WATCHDOG,AgentEngine.config.getRegion(),null,null,wdMap);
+	    		le.setParam("src_region", AgentEngine.region);
+	  		    le.setParam("src_agent", AgentEngine.agent);
+	  		    le.setParam("dst_region", AgentEngine.region);
+	  		    AgentEngine.clog.log(le);
+	    	}
+	    	*/
+	    }
+	  }
 	
 	public boolean getController() 
 	{
@@ -112,6 +211,7 @@ public class ControllerChannel {
     			sb.append("&paramkey=" + URLEncoder.encode(pairs.getKey().toString(), "UTF-8") + "&paramvalue=" + URLEncoder.encode(pairs.getValue().toString(), "UTF-8"));
     			it.remove(); // avoids a ConcurrentModificationException
     		}
+    		//System.out.println(sb.toString());
         return sb.toString();
     	}
     	catch(Exception ex)
@@ -230,6 +330,7 @@ public class ControllerChannel {
 				MsgEvent ce = null;
 				try
 				{
+					//System.out.println(response);
 					ce = meFromJson(response.toString());
 				}
 				catch(Exception ex)
@@ -241,6 +342,75 @@ public class ControllerChannel {
 					if(ce.getMsgBody() != null)
 					{
 						if(ce.getMsgBody().equals("nodeadded"))
+						{
+							return true;
+						}
+					}
+				}
+			}
+			return false;
+			
+		}
+		catch(Exception ex)
+		{
+			System.out.println("Controller : ControllerChannel : sendControllerLog : " + ex.toString());
+			return false;
+		}
+	}
+ 
+    public boolean setNodeParams(MsgEvent le)
+    {
+		try
+		{
+			Map<String,String> tmpMap = le.getParams();
+			Map<String,String> leMap = null;
+			String type = null;
+			synchronized (tmpMap)
+			{
+				leMap = new ConcurrentHashMap<String,String>(tmpMap);
+				type = le.getMsgType().toString();
+			}
+			String url = controllerUrl + urlFromMsg(type,leMap);
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+ 
+			con.setConnectTimeout(5000);
+			
+			// optional default is GET
+			con.setRequestMethod("GET");
+ 
+			//add request header
+			con.setRequestProperty("User-Agent", USER_AGENT);
+ 
+			int responseCode = con.getResponseCode();
+			
+			if(responseCode == 200)
+			{
+				BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));				        
+				String inputLine;
+				StringBuffer response = new StringBuffer();
+		 
+				while ((inputLine = in.readLine()) != null) 
+				{
+						response.append(inputLine);
+				}
+				in.close();
+			
+				MsgEvent ce = null;
+				try
+				{
+					//System.out.println(response);
+					ce = meFromJson(response.toString());
+				}
+				catch(Exception ex)
+				{
+					System.out.println("Controller : ControllerChannel : Error meFromJson");
+				}					
+				if(ce != null)
+				{
+					if(ce.getMsgBody() != null)
+					{
+						if(ce.getMsgBody().equals("paramsadded"))
 						{
 							return true;
 						}
@@ -297,7 +467,6 @@ public class ControllerChannel {
 		}
 	}
  
-    
 	// HTTP GET request
 	private void sendGet() throws Exception {
  

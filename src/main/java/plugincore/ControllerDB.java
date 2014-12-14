@@ -1,5 +1,6 @@
 package plugincore;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -114,15 +115,38 @@ public class ControllerDB {
 	
 	public void setNodeParams(String region, String agent, String plugin, Map<String,String> paramMap)
 	{
-		try{
-		if((region != null) && (agent != null) && (plugin == null)) //agent node
+		//extract config from param Map
+		Map<String,String> configMap = PluginEngine.config.buildPluginMap(paramMap.get("msg"));
+
+		try
 		{
-			agentMap.get(agent).setAgentParams(paramMap);
-		}
-		else if((region != null) && (agent != null) && (plugin != null)) //plugin node
-		{
-			agentMap.get(agent).setPluginParams(plugin, paramMap);
-		}
+			
+			if((region != null) && (agent != null) && (plugin == null)) //agent node
+			{
+				agentMap.get(agent).setAgentParams(configMap);
+				if(PluginEngine.hasController)
+				{
+					MsgEvent ce = controllerMsgEvent(region,agent,plugin,"setparams");
+					ce.setParam("configparams", paramMap.get("msg"));
+					if(!PluginEngine.controllerChannel.setNodeParams(ce))
+					{
+						System.out.println("Controller : ControllerDB : Failed to setParams for Node on Controller");
+					}
+				}
+			}
+			else if((region != null) && (agent != null) && (plugin != null)) //plugin node
+			{
+				agentMap.get(agent).setPluginParams(plugin, configMap);
+				if(PluginEngine.hasController)
+				{
+					MsgEvent ce = controllerMsgEvent(region,agent,plugin,"setparams");
+					ce.setParam("configparams", paramMap.get("msg"));
+					if(!PluginEngine.controllerChannel.setNodeParams(ce))
+					{
+						System.out.println("Controller : ControllerDB : Failed to setParams for Node on Controller");
+					}
+				}
+			}
 		}
 		catch(Exception ex)
 		{

@@ -31,12 +31,17 @@ public class CommandExec {
 					//message is for this plugin!
 					if(ce.getMsgType() == MsgEventType.DISCOVER)
 					{
+						//ce.setParams(PluginEngine.config.getPluginConfig());
+						/*
 						StringBuilder sb = new StringBuilder();
 						sb.append("help\n");
 						sb.append("show\n");
 						sb.append("show_name\n");
 						sb.append("show_version\n");
 						ce.setMsgBody(sb.toString());
+						*/
+						ce.setMsgBody(PluginEngine.config.getPluginConfigString());
+						
 					}
 					else if(ce.getMsgType() == MsgEventType.EXEC) //Execute and respond to execute commands
 					{

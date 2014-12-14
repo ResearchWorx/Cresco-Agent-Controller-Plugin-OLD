@@ -16,6 +16,7 @@ import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import channels.ControllerChannel;
 import shared.Clogger;
 import shared.MsgEvent;
+import shared.MsgEventType;
 import shared.PluginImplementation;
 import shell.AppShellFactory;
 import shell.AppShellFactory;
@@ -42,6 +43,8 @@ public class PluginEngine {
 	public static String agent;
 	public static String region;
 	
+	public static WatchDog wd;
+	
 	public static CommandExec commandExec;
 	
 	public static AgentDiscovery agentDiscover;
@@ -58,7 +61,18 @@ public class PluginEngine {
 	}
 	public void shutdown()
 	{
-		System.out.println("Implement Shutdown in Plugin");
+		System.out.println("Plugin Shutdown : Agent=" + agent + "pluginname=" + plugin);
+		wd.timer.cancel(); //prevent rediscovery
+		try
+		{
+			PluginEngine.gdb.removeNode(region, agent, null);
+		}
+		catch(Exception ex)
+		{
+			String msg2 = "Plugin Shutdown Failed: Agent=" + agent + "pluginname=" + plugin;
+			clog.error(msg2);
+			
+		}
 	}
 	public String getName()
 	{
@@ -170,7 +184,7 @@ public class PluginEngine {
     		sshd.start();
 			*/
 	    	
-	    	WatchDog wd = new WatchDog();
+	    	wd = new WatchDog();
     		
     		return true;
     		
