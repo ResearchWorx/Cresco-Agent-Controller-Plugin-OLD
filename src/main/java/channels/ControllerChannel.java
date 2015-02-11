@@ -293,7 +293,7 @@ public class ControllerChannel {
     {
 		try
 		{
-			System.out.println(le.getParams());
+			System.out.println(le.getParamsString());
 			//CODY
 			
 			Map<String,String> tmpMap = le.getParams();
@@ -305,6 +305,10 @@ public class ControllerChannel {
 				type = le.getMsgType().toString();
 			}
 			String url = controllerUrl + urlFromMsg(type,leMap);
+			
+			System.out.println(url);
+			//CODY
+			
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
  
@@ -335,6 +339,10 @@ public class ControllerChannel {
 				{
 					//System.out.println(response);
 					ce = meFromJson(response.toString());
+					
+					System.out.println(ce.getParamsString());
+					//CODY
+					
 				}
 				catch(Exception ex)
 				{
