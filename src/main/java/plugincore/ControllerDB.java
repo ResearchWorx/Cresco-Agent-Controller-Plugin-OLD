@@ -74,6 +74,8 @@ public class ControllerDB {
 	
 	public void addNode(String region, String agent, String plugin)
 	{
+		System.out.println("Adding Node: " + region + " " + agent + " " + plugin);
+		//CODY
 		try{
 		if((region != null) && (agent != null) && (plugin == null)) //agent node			
 		{

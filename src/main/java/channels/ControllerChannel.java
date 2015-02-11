@@ -293,6 +293,9 @@ public class ControllerChannel {
     {
 		try
 		{
+			System.out.println(le.getParams());
+			//CODY
+			
 			Map<String,String> tmpMap = le.getParams();
 			Map<String,String> leMap = null;
 			String type = null;
