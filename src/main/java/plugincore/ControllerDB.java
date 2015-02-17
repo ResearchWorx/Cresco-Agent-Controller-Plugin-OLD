@@ -95,8 +95,10 @@ public class ControllerDB {
 		{
 			if(!isNode(region, agent, null))
 			{
-				AgentNode aNode = new AgentNode(agent);
-				agentMap.put(agent, aNode);
+				//AgentNode aNode = new AgentNode(agent);
+				//agentMap.put(agent, aNode);
+				//CODY
+				addNode(region, agent, null);
 			}
 			agentMap.get(agent).addPlugin(plugin);
 			//add to controller

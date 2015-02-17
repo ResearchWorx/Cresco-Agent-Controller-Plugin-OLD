@@ -293,7 +293,9 @@ public class ControllerChannel {
     {
 		try
 		{
-			System.out.println(le.getParamsString());
+			
+			System.out.println("*addNode Controller Channel: sendParams: " +le.getParamsString());
+			//System.out.println(le.getParamsString());
 			//CODY
 			
 			Map<String,String> tmpMap = le.getParams();
@@ -306,7 +308,9 @@ public class ControllerChannel {
 			}
 			String url = controllerUrl + urlFromMsg(type,leMap);
 			
-			System.out.println(url);
+			//System.out.println(url);
+			System.out.println("*addNode Controller Channel url: " + url);
+			
 			//CODY
 			
 			URL obj = new URL(url);
@@ -339,8 +343,9 @@ public class ControllerChannel {
 				{
 					//System.out.println(response);
 					ce = meFromJson(response.toString());
+					System.out.println("*addNode Controller Channel : return responce" + response.toString());
 					
-					System.out.println(ce.getParamsString());
+					//System.out.println(ce.getParamsString());
 					//CODY
 					
 				}
@@ -506,8 +511,6 @@ public class ControllerChannel {
 			return false;
 		}
 	}
- 
-    
     
     public void sendController(MsgEvent le)
     {
