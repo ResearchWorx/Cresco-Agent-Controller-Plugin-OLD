@@ -27,6 +27,7 @@ public class ControllerChannel {
 	    
 	
 	private String controllerUrl;
+	private String performanceUrl;
 	
 	public ControllerChannel()
 	{
@@ -40,6 +41,8 @@ public class ControllerChannel {
 			{
 				controllerUrl = "http://" + PluginEngine.config.getControllerIP() + ":32000/API";
 			}
+			performanceUrl = "http://" + PluginEngine.config.getControllerIP() + ":32002/API";
+			
 			//Create pooling agent
 			startTS = System.currentTimeMillis();
 			timer = new Timer();
@@ -455,7 +458,8 @@ public class ControllerChannel {
 				leMap = new ConcurrentHashMap<String,String>(tmpMap);
 				type = le.getMsgType().toString();
 			}
-			String url = controllerUrl + urlFromMsg(type,leMap);
+			//String url = controllerUrl + urlFromMsg(type,leMap);
+			String url = performanceUrl + urlFromMsg(type,leMap);
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
  
