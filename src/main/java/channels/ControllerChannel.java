@@ -104,6 +104,7 @@ public class ControllerChannel {
     					}
     				}
     			}
+    			con.disconnect();
     			return false;
     			
     		}
