@@ -65,7 +65,8 @@ public class PluginEngine {
 		wd.timer.cancel(); //prevent rediscovery
 		try
 		{
-			PluginEngine.gdb.removeNode(region, agent, null);
+			//try and remove entire region
+			PluginEngine.gdb.removeNode(region, null, null);
 		}
 		catch(Exception ex)
 		{
