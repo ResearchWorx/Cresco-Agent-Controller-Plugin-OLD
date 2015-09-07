@@ -24,14 +24,18 @@ public class ControllerDB {
 				    .concurrencyLevel(4)
 				    .softValues()
 				    .maximumSize(10000)
-				    .expireAfterWrite(15, TimeUnit.MINUTES)
+				    .expireAfterWrite(30, TimeUnit.SECONDS)
 				    .build();
 	}
-	
+	public String genBlackList(String region, String agent, String plugin)
+	{
+		return region + "-" + agent + "-" + plugin;
+	}
 	public Boolean isNode(String region, String agent, String plugin)
 	{
+		
 		try{
-			if(isBlacklisted(agent))
+			if(isBlacklisted(genBlackList(region,agent,plugin)))
 			{
 				return false;
 			}
@@ -94,7 +98,7 @@ public class ControllerDB {
 	
 	public void addNode(String region, String agent, String plugin)
 	{
-		if(isBlacklisted(agent))
+		if(isBlacklisted(genBlackList(region,agent,plugin)))
 		{
 			return;
 		}
@@ -149,7 +153,7 @@ public class ControllerDB {
 
 		try
 		{
-			if(isBlacklisted(agent))
+			if(isBlacklisted(genBlackList(region,agent,plugin)))
 			{
 				return;
 			}
@@ -189,7 +193,7 @@ public class ControllerDB {
 	public Map<String,String> getNodeParams(String region, String agent, String plugin)
 	{
 		try{
-			if(isBlacklisted(agent))
+			if(isBlacklisted(genBlackList(region,agent,plugin)))
 			{
 				return null;
 			}
@@ -214,7 +218,7 @@ public class ControllerDB {
 	public void setNodeParam(String region, String agent, String plugin, String key, String value)
 	{
 		try{
-			if(isBlacklisted(agent))
+			if(isBlacklisted(genBlackList(region,agent,plugin)))
 			{
 				return;
 			}
@@ -249,10 +253,12 @@ public class ControllerDB {
 			}
 			return;
 		}
-		if(isBlacklisted(agent))
+		
+		if(isBlacklisted(genBlackList(region,agent,plugin)))
 		{
 			return;
 		}
+		
 		if((region != null) && (agent != null) && (plugin == null)) //agent node
 		{
 			agentMap.remove(agent);
