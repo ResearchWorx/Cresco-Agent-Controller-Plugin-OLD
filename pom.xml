@@ -73,11 +73,25 @@
             </goals>
           </execution>
         </executions>
-        <configuration>
-          <doCheck>false</doCheck>
-          <doUpdate>false</doUpdate>
-          <shortRevisionLength>5</shortRevisionLength>
-        </configuration>
+        
+        
+  <configuration>
+    <archive>
+      <manifest>
+        <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+        <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+      	
+      </manifest>
+      <manifestEntries>
+              <Implementation-Version>${project.version}.${buildNumber}.${maven.build.timestamp}</Implementation-Version>
+      </manifestEntries>
+    </archive>
+    <descriptorRefs>
+      <descriptorRef>jar-with-dependencies</descriptorRef>
+    </descriptorRefs>
+  </configuration>
+
+
       </plugin>
  
 
@@ -113,6 +127,8 @@
                                     <manifestEntries>
                                         <Main-Class>com.codybum.wifiserv.coreServer</Main-Class>
                                         <Build-Number>1</Build-Number>
+                                        <Implementation-Version>${project.version}.${buildNumber}.${maven.build.timestamp}</Implementation-Version>
+                                        <artifactId>cresco-agent-controller-plugin</artifactId>
                                     </manifestEntries>
                                 </transformer>
                                  </transformers>
