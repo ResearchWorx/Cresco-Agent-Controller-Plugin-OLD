@@ -24,7 +24,7 @@ public class ControllerDB {
 				    .concurrencyLevel(4)
 				    .softValues()
 				    .maximumSize(10000)
-				    .expireAfterWrite(30, TimeUnit.SECONDS)
+				    .expireAfterWrite(5, TimeUnit.SECONDS)
 				    .build();
 	}
 	public String genBlackList(String region, String agent, String plugin)
@@ -270,6 +270,9 @@ public class ControllerDB {
 					System.out.println("Controller : ControllerDB : Failed to addNode to Controller");
 				}
 			}
+			System.out.println("Blacklisting: " + genBlackList(region,agent,plugin));
+			blackListCache.put(genBlackList(region,agent,plugin), System.currentTimeMillis());
+			
 		}
 		else if((region != null) && (agent != null) && (plugin != null)) //plugin node
 		{
@@ -283,7 +286,11 @@ public class ControllerDB {
 				}
 			}
 		}
-		blackListCache.put(agent, System.currentTimeMillis());
+		//genBlackList(region,agent,plugin)
+		//blackListCache.put(agent, System.currentTimeMillis());
+		System.out.println("Blacklisting: " + genBlackList(region,agent,plugin));
+		blackListCache.put(genBlackList(region,agent,plugin), System.currentTimeMillis());
+		
 		}
 		catch(Exception ex)
 		{
@@ -292,6 +299,7 @@ public class ControllerDB {
 	}
 	private boolean isBlacklisted(String agent)
 	{
+		//System.out.println("Checking BlackList for: " + agent);
 		Long blackListTime = blackListCache.getIfPresent(agent);
 		if(blackListTime != null)
 		{
