@@ -50,7 +50,7 @@ public class ControllerChannel {
 		}
 		
 	}
-	
+	 
 	class CmdPoolTask extends TimerTask 
 	{
 		private boolean pool()
@@ -213,6 +213,7 @@ public class ControllerChannel {
     		{
     			Map.Entry pairs = (Map.Entry)it.next();
     			sb.append("&paramkey=" + URLEncoder.encode(pairs.getKey().toString(), "UTF-8") + "&paramvalue=" + URLEncoder.encode(pairs.getValue().toString(), "UTF-8"));
+    			
     			it.remove(); // avoids a ConcurrentModificationException
     		}
     		//System.out.println(sb.toString());
@@ -288,7 +289,7 @@ public class ControllerChannel {
 		}
 		catch(Exception ex)
 		{
-			System.out.println("Controller : ControllerChannel : sendControllerLog : " + ex.toString());
+			System.out.println("Controller : ControllerChannel : sendControllerLog RemoveNode : " + ex.toString());
 			return false;
 		}
 	}
@@ -373,7 +374,7 @@ public class ControllerChannel {
 		}
 		catch(Exception ex)
 		{
-			System.out.println("Controller : ControllerChannel : sendControllerLog : " + ex.toString());
+			System.out.println("Controller : ControllerChannel : sendControllerLog addNode : " + ex.toString());
 			return false;
 		}
 	}
@@ -442,11 +443,104 @@ public class ControllerChannel {
 		}
 		catch(Exception ex)
 		{
-			System.out.println("Controller : ControllerChannel : sendControllerLog : " + ex.toString());
+			System.out.println("Controller : ControllerChannel : sendControllerLog setNodeParams : " + ex.toString());
 			return false;
 		}
 	}
  
+    public boolean updatePerf2(MsgEvent le)
+    {
+    	System.out.println("Woot0-0");
+		
+		try
+		{
+			Map<String,String> tmpMap = le.getParams();
+			System.out.println("Woot0-0-0");
+			System.out.println("OUTPUT!!!! = " + le.getParamsString());
+			if(tmpMap == null)
+			{
+				System.out.println("TEMPMAP = null");
+			}
+			if(tmpMap.isEmpty())
+			{
+				System.out.println("TEMPMAP is Empty");
+			}
+			Map<String,String> leMap;
+			System.out.println("Woot0-0-1");
+			
+			String type = null;
+			
+				System.out.println("Woot0-0-2-0");
+				
+				leMap = new HashMap<String,String>(tmpMap);
+				System.out.println("Woot0-0-2");
+				
+				type = le.getMsgType().toString();
+				System.out.println("Woot0-0-3");
+				
+			
+			System.out.println("Woot0-1");
+			
+			//String url = controllerUrl + urlFromMsg(type,leMap);
+			String url = performanceUrl + urlFromMsg(type,leMap);
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			System.out.println("Woot0-2");
+			
+			con.setConnectTimeout(5000);
+			
+			// optional default is GET
+			con.setRequestMethod("GET");
+ 
+			//add request header
+			con.setRequestProperty("User-Agent", USER_AGENT);
+ 
+			int responseCode = con.getResponseCode();
+			
+			if(responseCode == 200)
+			{
+				System.out.println("Woot0");
+				BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));				        
+				String inputLine;
+				StringBuffer response = new StringBuffer();
+				System.out.println("Woot1");
+				while ((inputLine = in.readLine()) != null) 
+				{
+						response.append(inputLine);
+				}
+				in.close();
+				System.out.println("Woot2");
+				MsgEvent ce = null;
+				try
+				{
+					//System.out.println(response);
+					ce = meFromJson(response.toString());
+				}
+				catch(Exception ex)
+				{
+					System.out.println("Controller : ControllerChannel : Error meFromJson");
+				}					
+				if(ce != null)
+				{
+					if(ce.getMsgBody() != null)
+					{
+						if(ce.getMsgBody().equals("updatedperf"))
+						{
+							return true;
+						}
+					}
+				}
+			}
+			return false;
+			
+		}
+		catch(Exception ex)
+		{
+			System.out.println("Controller : ControllerChannel : sendControllerLog Performance : " + ex.toString());
+			return false;
+		}
+	}
+    
     public boolean updatePerf(MsgEvent le)
     {
 		try
@@ -512,7 +606,7 @@ public class ControllerChannel {
 		}
 		catch(Exception ex)
 		{
-			System.out.println("Controller : ControllerChannel : sendControllerLog : " + ex.toString());
+			System.out.println("Controller : ControllerChannel : sendControllerLog UpdatePerf: " + ex.toString());
 			return false;
 		}
 	}
@@ -552,7 +646,7 @@ public class ControllerChannel {
 		}
 		catch(Exception ex)
 		{
-			System.out.println("Controller : ControllerChannel : sendControllerLog : " + ex.toString());
+			System.out.println("Controller : ControllerChannel : sendControllerLog sendController : " + ex.toString());
 		}
 	}
  
