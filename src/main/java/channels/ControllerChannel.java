@@ -543,9 +543,10 @@ public class ControllerChannel {
     
     public boolean updatePerf(MsgEvent le)
     {
-		try
+    	try
 		{
 			Map<String,String> tmpMap = le.getParams();
+			
 			Map<String,String> leMap = null;
 			String type = null;
 			synchronized (tmpMap)
@@ -553,6 +554,7 @@ public class ControllerChannel {
 				leMap = new ConcurrentHashMap<String,String>(tmpMap);
 				type = le.getMsgType().toString();
 			}
+			
 			//String url = controllerUrl + urlFromMsg(type,leMap);
 			String url = performanceUrl + urlFromMsg(type,leMap);
 			URL obj = new URL(url);
